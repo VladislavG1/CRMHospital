@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+  schema   = "document"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model Documents {
+  id           String            @id @default(uuid()) @db.Uuid
+  name         String            @unique @db.VarChar(64)
+  
+  description  String?           @db.Text
+
+  // creator MainUser [not null, unique]
+  creatorId    String?            @unique @db.Uuid
+
+  // docs_template Template_Documents
+  templateId   String?           @db.Uuid
+  template     FilledTemplateDocuments? @relation(fields: [templateId], references: [id])
+
+  // docs_type Documetns_types
+  typeId       String?           @db.Uuid
+  type         DocumentsTypes?   @relation(fields: [typeId], references: [id])
+
+  // docs_file File_storege_docs
+  fileId       String?           @db.Uuid
+  file         FileStorageDocs?  @relation(fields: [fileId], references: [id])
+
+  // docs_status Document_status
+  statusId     String?           @db.Uuid
+  status       DocumentStatus?   @relation(fields: [statusId], references: [id])
+
+  dataCreate   DateTime          @default(now())
+
+  // archives     ArchiveDocs[]
+
+  @@map("documents")
+}
+
+model ConstDocuments {
+  id         String           @id @default(uuid()) @db.Uuid
+  name       String           @unique @db.VarChar(64)
+
+  typeId     String?          @db.Uuid
+  type       DocumentsTypes?  @relation(fields: [typeId], references: [id])
+
+  // docs_file binary
+  docsFile   Bytes?
+
+  dataCreate DateTime         @default(now())
+
+  @@map("constdocuments")
+}
+
+model FilledTemplateDocuments {
+  id         String             @id @default(uuid()) @db.Uuid
+  name       String             @unique @db.VarChar(64)
+
+  creatorId  String             @unique @db.Uuid
+
+
+  templateId String?            @db.Uuid
+  template   TemplateDocuments? @relation(fields: [templateId], references: [id])
+
+  typeId     String?            @db.Uuid
+  type       DocumentsTypes?    @relation(fields: [typeId], references: [id])
+
+  fileId     String?            @db.Uuid
+  file       FileStorageDocs?   @relation(fields: [fileId], references: [id])
+
+  statusId   String?            @db.Uuid
+  status     DocumentStatus?    @relation(fields: [statusId], references: [id])
+
+  dataCreate DateTime           @default(now())
+
+  documents  Documents[]
+  
+  @@map("filledtemplatedocuments")
+}
+
+model TemplateDocuments {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique @db.VarChar(64)
+  description String?  @db.Text
+  JsonData    Json
+  version     String?   @default("1.0.0") @db.VarChar
+
+
+  document_type String?   @db.Uuid
+  docs_type     DocumentsTypes?  @relation(fields: [document_type], references: [id])
+
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  filledTemplateDocs  FilledTemplateDocuments[]
+
+  @@map("template_documents")
+}
+
+
+// model ArchiveDocs {
+//   id         String    @id @default(uuid()) @db.Uuid
+
+//   // docs Documents
+//   docsId     String?   @db.Uuid
+//   docs       Documents? @relation(fields: [docsId], references: [id])
+
+//   dataCreate DateTime  @default(now())
+
+//   @@map("Archive_docs")
+// }
+
+model FileStorageDocs {
+  id           String   @id @default(uuid()) @db.Uuid
+
+
+  originalName String?   @db.VarChar
+
+  storageName  String?   @db.VarChar
+
+  mimeType     String?   @db.VarChar
+  size         BigInt?
+  
+
+
+
+  uploadedById String?   @db.Uuid
+  uploadedAt   DateTime @default(now())
+
+
+  documents          Documents[]
+  filledTemplateDocs FilledTemplateDocuments[]
+
+  @@map("filestoragedocs")
+}
+
+model DocumentStatus {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique @db.VarChar(64)
+  description String?  @db.Text
+  dataCreate  DateTime @default(now())
+
+  documents          Documents[]
+  filledTemplateDocs FilledTemplateDocuments[]
+
+  @@map("documentstatus")
+}
+
+model DocumentsTypes {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique @db.VarChar(64)
+  description String?  @db.Text
+  dataCreate  DateTime @default(now())
+
+  documents          Documents[]
+  TemplateDocuments  TemplateDocuments[]
+  constDocuments     ConstDocuments[]
+  filledTemplateDocs FilledTemplateDocuments[]
+
+  @@map("documetnstypes")
+}
+

@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  schema   = "public"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MainUser {
+  id           String    @id @default(uuid()) @db.Uuid
+  username     String    @unique
+  
+
+  password_hash          String
+  password_salt          String
+  password_changed_at    DateTime? @default(now())
+
+  email        String    @unique 
+  email_verified Boolean? @default(false)
+
+  firstName    String //
+  lastName     String //
+  phone_number String?   @unique ///
+  birth_date   DateTime? @db.Date //
+  is_active    Boolean?   @default(true) ///  
+
+  sex          Sex? ///
+
+  role_id String?  @db.Uuid
+  userRoles          Role? @relation(fields: [role_id], references: [id])
+
+  post_id String?  @db.Uuid
+  userPosts          UserPost? @relation(fields: [post_id], references: [id])
+
+  department_id String?  @db.Uuid
+  userDepartments    Department? @relation(fields: [department_id], references: [id])
+
+  @@index([email])
+  @@index([username])
+  @@index([is_active])
+  @@map("main_users")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  role_name        String   @unique @db.VarChar(64)
+  date_create DateTime? @default(now())
+
+  access_attr_id  String?  @db.Uuid
+  access_attr AttributesAccess? @relation(fields: [access_attr_id], references: [id])
+  users       MainUser[]
+
+  @@index([role_name])
+  @@map("roles")
+}
+
+model UserPost {
+  id  String  @id @default(uuid()) @db.Uuid
+  post_name String  @unique @db.VarChar(64)
+  date_create DateTime? @default(now())
+
+  access_attr_id  String?  @db.Uuid
+  access_attr AttributesAccess?  @relation(fields: [access_attr_id], references: [id])
+  users MainUser[]
+
+  @@index([post_name])
+  @@map("user_posts")
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  can_view_a  Boolean? @default(false)
+  can_view_b  Boolean? @default(false)
+  can_view_c  Boolean? @default(false)
+  other_perm  Json?
+
+  attributes AttributesAccess[]
+
+  @@index([name])
+  @@map("permissions")
+}
+
+model Department {
+  id   String @id @default(uuid()) @db.Uuid
+  department_name String @unique @db.VarChar(64)
+  date_create DateTime? @default(now())
+
+  access_attr_id  String?  @db.Uuid
+  access_attr AttributesAccess?  @relation(fields: [access_attr_id], references: [id])
+  users MainUser[]
+
+  @@index([department_name])
+  @@map("departments")
+}
+
+model AttributesAccess {
+  id  String  @id @default(uuid()) @db.Uuid
+  attr_name String  @unique @db.VarChar(64)
+  description String?
+  date_create DateTime? @default(now())
+
+  permission_id String?  @db.Uuid
+  permissions Permission?  @relation(fields: [permission_id], references: [id])
+
+  roles Role[]
+  posts UserPost[]
+  departments Department[]
+
+  @@index([attr_name])
+  @@map("attributes_access")
+}
+
+enum Sex {
+  male
+  female
+}
+ 
