@@ -63,4 +63,5 @@ backend/init.sql
 backend/docker-compose.yml
 backend/auth-service/Dockerfile
 backend/document-service/Dockerfile
+backend/workflow-service/Dockerfile
 backend/docker-compose.yml
