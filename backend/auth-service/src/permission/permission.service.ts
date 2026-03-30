@@ -1,5 +1,6 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { CreateAttributeDto, UpdateAttributeDto } from "./dto/attribute.dto";
 import { CreateEntityDto, UpdateEntityDto } from "./dto/entity.dto";
 import { CreatePermissionDto, UpdatePermissionDto } from "./dto/permission.dto";
@@ -8,7 +9,8 @@ import { PrismaService } from 'src/prisma.service';
 @Injectable()
 export class PermissionService {
     constructor(
-        private prisma: PrismaService
+        private prisma: PrismaService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) { }
 
     async findAllPermissions() {
@@ -44,7 +46,7 @@ export class PermissionService {
 
     async updatePermission(id: string, dto: UpdatePermissionDto) {
         try {
-            const permission = await this.prisma.permissions.update({ 
+            const permission = await this.prisma.permissions.update({
                 where: { id },
                 data: { dto }
             });
@@ -56,7 +58,7 @@ export class PermissionService {
 
     async deletePermission(id: string) {
         try {
-            const permission = await this.prisma.permissions.delete({ 
+            const permission = await this.prisma.permissions.delete({
                 where: { id }
             });
             return permission;
@@ -121,17 +123,17 @@ export class PermissionService {
                 return await this.prisma.roles.update({
                     where: { id: entityId },
                     data: updateData
-            });
+                });
             if (type === 'post')
                 return await this.prisma.userPost.update({
                     where: { id: entityId },
                     data: updateData
-            });
+                });
             if (type === 'dept')
                 return await this.prisma.departments.update({
                     where: { id: entityId },
                     data: updateData
-            });
+                });
         } catch (ex) {
             throw new ConflictException(`Не удалось привязать атрибут. Ошибка: ${ex}`)
         }
@@ -171,7 +173,22 @@ export class PermissionService {
         }
     }
 
-    async calculateUserRights(userId: string) {
+    async getEffectiveRights(userId: string) {
+        const cacheKey = `user_rights:${userId}`;
+
+        const cachedData = await this.cacheManager.get(cacheKey);
+        if (cachedData) {
+            return cachedData;
+        }
+
+        const effectivePermissions = await this.calculateUserRights(userId);
+
+        await this.cacheManager.set(cacheKey, effectivePermissions, 1800);
+
+        return effectivePermissions;
+    }
+
+    private async calculateUserRights(userId: string) {
         try {
             const user = await this.prisma.mainUser.findUnique({
                 where: { id: userId },
@@ -220,13 +237,31 @@ export class PermissionService {
                 if (p.other_perm) result.other_perm = { ...result.other_perm, ...(p.other_perm as object) };
             });
 
-            return result;
+            return {
+                user_id: user.id,
+                username: user.username,
+                effectivePermissions: result,
+                calculated_at: new Date().toISOString(),
+            };
         } catch (ex) {
             throw new NotFoundException(`Пользователь не найден. Ошибка: ${ex}`)
         }
     }
 
+    async invalidateCache(userId: string) {
+        await this.cacheManager.del(`user_rights:${userId}`);
+    }
+
     // TO-DO
-    // Role: update, delete
+    // Role: delete
     // Post: update, delete
+
+    async updateRole(roleId: string, data: any) {
+        const updatedRole = await this.prisma.roles.update({ where: { id: roleId }, data });
+
+        const users = await this.prisma.mainUsers.findMany({ where: { userRoles: roleId } });
+        await Promise.all(users.map(u => this.invalidateCache(u.id)));
+
+        return updatedRole;
+    }
 }

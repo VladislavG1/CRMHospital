@@ -139,7 +139,7 @@ export class PermissionController {
     @Get('user/:userId/effective-rights')
     async getEffectiveRights(@Param('userId', ParseUUIDPipe) userId: string) {
         try {
-            return await this.permissionService.calculateUserRights(userId);
+            return await this.permissionService.getEffectiveRights(userId);
         } catch (ex) {
             throw new BadGatewayException(`Не удалось получить суммарные права пользователя. Ошибка: ${ex}`)
         }

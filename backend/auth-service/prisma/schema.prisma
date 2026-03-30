@@ -95,6 +95,11 @@ model Department {
   department_name String @unique @db.VarChar(64)
   date_create DateTime? @default(now())
 
+  parent_id String? @db.Uuid
+  parent Department? @relation("DepartmentHierarchy", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  children Department[] @relation("DepartmentHierarchy")
+
   access_attr_id  String?  @db.Uuid
   access_attr AttributesAccess?  @relation(fields: [access_attr_id], references: [id])
   users MainUser[]
