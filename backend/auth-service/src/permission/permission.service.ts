@@ -5,6 +5,7 @@ import { CreateAttributeDto, UpdateAttributeDto } from "./dto/attribute.dto";
 import { CreateEntityDto, UpdateEntityDto } from "./dto/entity.dto";
 import { CreatePermissionDto, UpdatePermissionDto } from "./dto/permission.dto";
 import { PrismaService } from 'src/prisma.service';
+import { UserRightsResponse } from '../utils/interfaces/user-rights.interface';
 
 @Injectable()
 export class PermissionService {
@@ -15,7 +16,7 @@ export class PermissionService {
 
     async findAllPermissions() {
         try {
-            const permissions = await this.prisma.permissions.findMany();
+            const permissions = await this.prisma.permission.findMany();
             return permissions;
         } catch (ex) {
             throw new NotFoundException(`Ни одно разрешение не найдено. Ошибка: ${ex}`)
@@ -24,7 +25,7 @@ export class PermissionService {
 
     async findOnePermission(id: string) {
         try {
-            const permission = await this.prisma.permissions.findUnique({
+            const permission = await this.prisma.permission.findUnique({
                 where: { id }
             });
             return permission;
@@ -35,8 +36,8 @@ export class PermissionService {
 
     async createPermission(dto: CreatePermissionDto) {
         try {
-            const permission = await this.prisma.permissions.create({
-                data: { dto }
+            const permission = await this.prisma.permission.create({
+                data: dto
             });
             return permission;
         } catch (ex) {
@@ -46,9 +47,9 @@ export class PermissionService {
 
     async updatePermission(id: string, dto: UpdatePermissionDto) {
         try {
-            const permission = await this.prisma.permissions.update({
+            const permission = await this.prisma.permission.update({
                 where: { id },
-                data: { dto }
+                data: dto
             });
             return permission;
         } catch (ex) {
@@ -58,7 +59,7 @@ export class PermissionService {
 
     async deletePermission(id: string) {
         try {
-            const permission = await this.prisma.permissions.delete({
+            const permission = await this.prisma.permission.delete({
                 where: { id }
             });
             return permission;
@@ -70,7 +71,7 @@ export class PermissionService {
 
     async findAllAttributes() {
         try {
-            const attributes = await this.prisma.attributes_Access.findMany({
+            const attributes = await this.prisma.attributesAccess.findMany({
                 include: {
                     permissions: true
                 }
@@ -83,7 +84,7 @@ export class PermissionService {
 
     async createAttribute(dto: CreateAttributeDto) {
         try {
-            const attribute = await this.prisma.attributes_Access.create({
+            const attribute = await this.prisma.attributesAccess.create({
                 data: {
                     attr_name: dto.attr_name,
                     description: dto.description,
@@ -98,7 +99,7 @@ export class PermissionService {
 
     async linkPermissionToAttribute(attrId: string, permId: string) {
         try {
-            const attribute = await this.prisma.attributes_Access.update({
+            const attribute = await this.prisma.attributesAccess.update({
                 where: { id: attrId },
                 data: {
                     permissions: {
@@ -120,7 +121,7 @@ export class PermissionService {
                 }
             };
             if (type === 'role')
-                return await this.prisma.roles.update({
+                return await this.prisma.role.update({
                     where: { id: entityId },
                     data: updateData
                 });
@@ -130,7 +131,7 @@ export class PermissionService {
                     data: updateData
                 });
             if (type === 'dept')
-                return await this.prisma.departments.update({
+                return await this.prisma.department.update({
                     where: { id: entityId },
                     data: updateData
                 });
@@ -141,7 +142,7 @@ export class PermissionService {
 
     async createRole(dto: CreateEntityDto) {
         try {
-            const role = await this.prisma.roles.create({
+            const role = await this.prisma.role.create({
                 data: {
                     role_name: dto.name, ...(dto.access_attr_id && {
                         access_attr: {
@@ -173,10 +174,10 @@ export class PermissionService {
         }
     }
 
-    async getEffectiveRights(userId: string) {
+    async getEffectiveRights(userId: string): Promise<UserRightsResponse> {
         const cacheKey = `user_rights:${userId}`;
 
-        const cachedData = await this.cacheManager.get(cacheKey);
+        const cachedData = await this.cacheManager.get<UserRightsResponse>(cacheKey);
         if (cachedData) {
             return cachedData;
         }
@@ -188,7 +189,7 @@ export class PermissionService {
         return effectivePermissions;
     }
 
-    private async calculateUserRights(userId: string) {
+    private async calculateUserRights(userId: string): Promise<UserRightsResponse> {
         try {
             const user = await this.prisma.mainUser.findUnique({
                 where: { id: userId },
@@ -257,9 +258,9 @@ export class PermissionService {
     // Post: update, delete
 
     async updateRole(roleId: string, data: any) {
-        const updatedRole = await this.prisma.roles.update({ where: { id: roleId }, data });
+        const updatedRole = await this.prisma.role.update({ where: { id: roleId }, data });
 
-        const users = await this.prisma.mainUsers.findMany({ where: { userRoles: roleId } });
+        const users = await this.prisma.mainUser.findMany({ where: { role_id: roleId } });
         await Promise.all(users.map(u => this.invalidateCache(u.id)));
 
         return updatedRole;

@@ -9,12 +9,12 @@ export class DepartmentService {
   ) { }
 
   async create(dto: CreateDepartmentDto) {
-    const exists = await this.prisma.departments.findUnique({
+    const exists = await this.prisma.department.findUnique({
       where: { department_name: dto.name }
     });
     if (exists) throw new ConflictException('Отделение с таким названием уже существует');
 
-    return await this.prisma.departments.create({
+    return await this.prisma.department.create({
       data: {
         department_name: dto.name,
         ...(dto.parent_id && {
@@ -41,7 +41,7 @@ export class DepartmentService {
       }
     }
 
-    return await this.prisma.departments.update({
+    return await this.prisma.department.update({
       where: { id },
       data: {
         department_name: dto.name,
@@ -53,7 +53,7 @@ export class DepartmentService {
   }
 
   async remove(id: string) {
-    const dept = await this.prisma.departments.findUnique({
+    const dept = await this.prisma.department.findUnique({
       where: { id },
       include: { children: true, users: true }
     });
@@ -66,11 +66,11 @@ export class DepartmentService {
       throw new BadRequestException('Нельзя удалить отделение, в котором числятся сотрудники');
     }
 
-    return await this.prisma.departments.delete({ where: { id } });
+    return await this.prisma.department.delete({ where: { id } });
   }
 
   async findOne(id: string) {
-    const dept = await this.prisma.departments.findUnique({
+    const dept = await this.prisma.department.findUnique({
       where: { id },
       include: {
         parent: true,
@@ -83,7 +83,7 @@ export class DepartmentService {
   }
 
   async getTree() {
-    const allDepts = await this.prisma.departments.findMany({
+    const allDepts = await this.prisma.department.findMany({
       include: {
         access_attr: true,
         _count: { select: { users: true } }
@@ -112,8 +112,8 @@ export class DepartmentService {
 
   async getDepartmentStaff(dept_id: string, includeSubDepartments = false) {
     if (!includeSubDepartments) {
-      return await this.prisma.users.findMany({
-        where: { userDepartments: dept_id },
+      return await this.prisma.mainUser.findMany({
+        where: { department_id: dept_id },
         select: { id: true, username: true, firstName: true, lastName: true, userPosts: true }
       });
     }
@@ -121,8 +121,8 @@ export class DepartmentService {
     const subDepts = await this.findAllSubordinates(dept_id);
     const dept_ids = [dept_id, ...subDepts.map(d => d.id)];
 
-    return await this.prisma.users.findMany({
-      where: { userDepartments: { in: dept_ids } },
+    return await this.prisma.mainUser.findMany({
+      where: { department_id: { in: dept_ids } },
       include: { userPosts: true }
     });
   }

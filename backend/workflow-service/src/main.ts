@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-import { Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { builderRedisMicroserviceOptions } from './redis/redis.transport-options';
 
 async function bootstrap() {
@@ -23,8 +22,8 @@ async function bootstrap() {
   );
   await app.startAllMicroservices()
   await app.listen(
-    config.get<number>('PORT'),
-    config.get<string>('NULL_HOST'),
+    Number(config.get('PORT')),
+    String(config.get('NULL_HOST')),
     () => logger.debug(`Сервер запущен на порту ${config.get<number>('PORT')} с хостом ${config.get<string>('NULL_HOST')}`),
   );
 

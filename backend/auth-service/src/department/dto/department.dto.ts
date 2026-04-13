@@ -19,4 +19,4 @@ export class CreateDepartmentDto {
   access_attr_id?: string;
 }
 
-export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {}
+export class UpdateDepartmentDto extends CreateDepartmentDto {}

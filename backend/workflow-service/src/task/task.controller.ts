@@ -13,7 +13,9 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { TaskService } from './task.service';
-import { CreateTaskDto, UpdateTaskDto, UpdateTaskStatusDto } from './dto';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 
 @ApiTags('WorkFlow: Task Management')
 @Controller('workflow/tasks')

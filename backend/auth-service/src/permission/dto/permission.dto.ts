@@ -27,4 +27,4 @@ export class CreatePermissionDto {
     other_perm?: Record<string, any>;
 }
 
-export class UpdatePermissionDto extends PartialType(CreatePermissionDto) {}
+export class UpdatePermissionDto extends CreatePermissionDto {}
