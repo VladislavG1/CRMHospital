@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, BadGatewayException, ParseUUIDPipe, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { PermissionService } from './permission.service';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto/permission.dto';
 import { CreateAttributeDto } from './dto/attribute.dto';
@@ -6,6 +7,8 @@ import { CreateEntityDto } from './dto/entity.dto';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
 import { Roles } from 'src/utils/Decorator/roles.decorator';
 
+@ApiTags('Permissions & RBAC')
+@ApiBearerAuth('access-token')
 @UseGuards(RolesGuard)
 @Controller('permissions')
 export class PermissionController {
@@ -13,6 +16,8 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Get('')
+    @ApiOperation({ summary: 'Получить список всех существующих разрешений' })
+    @ApiResponse({ status: 200, description: 'Список успешно получен' })
     async getAllPermissions() {
         try {
             return await this.permissionService.findAllPermissions();
@@ -23,6 +28,7 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Post('')
+    @ApiOperation({ summary: 'Создать новое атомарное разрешение' })
     async createPermission(@Body() dto: CreatePermissionDto) {
         try {
             return await this.permissionService.createPermission(dto);
@@ -33,6 +39,8 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Get(':id')
+    @ApiOperation({ summary: 'Получить детали конкретного разрешения по UUID' })
+    @ApiParam({ name: 'id', description: 'UUID разрешения' })
     async getPermission(@Param('id', ParseUUIDPipe) id: string) {
         try {
             return await this.permissionService.findOnePermission(id);
@@ -43,6 +51,7 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Patch(':id')
+    @ApiOperation({ summary: 'Обновить параметры разрешения' })
     async updatePermission(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdatePermissionDto) {
         try {
             return await this.permissionService.updatePermission(id, dto);
@@ -53,6 +62,7 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Delete(':id')
+    @ApiOperation({ summary: 'Удалить разрешение' })
     async deletePermission(@Param('id', ParseUUIDPipe) id: string) {
         try {
             return await this.permissionService.deletePermission(id);
@@ -61,9 +71,9 @@ export class PermissionController {
         }
     }
 
-
     @Roles('ADMIN')
     @Post('attributes')
+    @ApiOperation({ summary: 'Создать атрибут доступа (группа разрешений)' })
     async createAttribute(@Body() dto: CreateAttributeDto) {
         try {
             return await this.permissionService.createAttribute(dto);
@@ -74,6 +84,7 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Get('attributes')
+    @ApiOperation({ summary: 'Получить все атрибуты доступа' })
     async getAllAttributes() {
         try {
             return await this.permissionService.findAllAttributes();
@@ -84,6 +95,9 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Patch('attributes/:id/link-permission/:permId')
+    @ApiOperation({ summary: 'Привязать разрешение к атрибуту' })
+    @ApiParam({ name: 'id', description: 'UUID атрибута' })
+    @ApiParam({ name: 'permId', description: 'UUID разрешения' })
     async linkPermissionToAttribute(@Param('id', ParseUUIDPipe) id: string, @Param('permId', ParseUUIDPipe) permId: string) {
         try {
             return await this.permissionService.linkPermissionToAttribute(id, permId);
@@ -92,9 +106,9 @@ export class PermissionController {
         }
     }
 
-
     @Roles('ADMIN')
     @Post('roles')
+    @ApiOperation({ summary: 'Создать новую роль в системе' })
     async createRole(@Body() dto: CreateEntityDto) {
         try {
             return this.permissionService.createRole(dto);
@@ -105,6 +119,7 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Patch('roles/:id/bind-attribute/:attrId')
+    @ApiOperation({ summary: 'Связать роль с атрибутом доступа' })
     async bindAttributeToRole(@Param('id', ParseUUIDPipe) id: string, @Param('attrId', ParseUUIDPipe) attrId: string) {
         try {
             return await this.permissionService.bindAttributeToEntity('role', id, attrId);
@@ -113,9 +128,9 @@ export class PermissionController {
         }
     }
 
-
     @Roles('ADMIN')
     @Post('posts')
+    @ApiOperation({ summary: 'Создать новую штатную позицию/должность' })
     async createPost(@Body() dto: CreateEntityDto) {
         try {
             return await this.permissionService.createPost(dto);
@@ -126,6 +141,7 @@ export class PermissionController {
 
     @Roles('ADMIN')
     @Patch('posts/:id/bind-attribute/:attrId')
+    @ApiOperation({ summary: 'Связать должность с атрибутом доступа' })
     async bindAttributeToPost(@Param('id', ParseUUIDPipe) id: string, @Param('attrId', ParseUUIDPipe) attrId: string) {
         try {
             return await this.permissionService.bindAttributeToEntity('post', id, attrId);
@@ -134,9 +150,10 @@ export class PermissionController {
         }
     }
 
-
     @Roles('ADMIN')
     @Get('user/:userId/effective-rights')
+    @ApiOperation({ summary: 'Рассчитать итоговые права пользователя (Матрица доступа)' })
+    @ApiParam({ name: 'userId', description: 'ID пользователя для анализа' })
     async getEffectiveRights(@Param('userId', ParseUUIDPipe) userId: string) {
         try {
             return await this.permissionService.getEffectiveRights(userId);
