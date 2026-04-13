@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+  schema   = "public"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tasks {
+  id           String      @id @default(uuid()) @db.Uuid
+  name         String      @db.VarChar(64)
+  description  String?     @db.Text
+  date_create   DateTime    @default(now())
+
+  task_type_id String      @db.Uuid
+  task_type    TaskType   @relation(fields: [task_type_id], references: [id])
+
+  task_status_id String    @db.Uuid
+  task_status    TaskStatus @relation(fields: [task_status_id], references: [id])
+
+  parent_id    String?     @db.Uuid
+  parent       Tasks?      @relation("TaskHierarchy", fields: [parent_id], references: [id])
+  children     Tasks[]     @relation("TaskHierarchy")
+
+  Task_users   TaskUsers[]
+  
+  Archive_docs ArchiveDocs[]
+}
+
+model TaskType {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @unique @db.VarChar(64)
+  date_create DateTime @default(now())
+  tasks      Tasks[]
+}
+
+model TaskStatus {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @unique @db.VarChar(64)
+  date_create DateTime @default(now())
+  tasks      Tasks[]
+}
+
+model TaskUsers {
+  id      String    @id @default(uuid()) @db.Uuid
+  user_id  String    @db.Uuid
+  task_id  String    @db.Uuid
+  task    Tasks     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model ArchiveDocs {
+  id         String   @id @default(uuid()) @db.Uuid
+  date_create DateTime @default(now())
+  task_id     String   @db.Uuid
+  task       Tasks    @relation(fields: [task_id], references: [id])
+}
