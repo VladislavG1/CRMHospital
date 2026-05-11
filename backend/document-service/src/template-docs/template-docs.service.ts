@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { CreateTempDocumentDto, updateTempDocumetnDto } from './dto/templdto';
+import { CreateTempDocumentDto, UpdateTempDocumentDto } from './dto/template.dto';
 
 @Injectable()
-export class TemaplateDocsService {
+export class TemplateDocsService {
     
     constructor(
         private readonly prisma: PrismaService,
@@ -35,11 +35,11 @@ export class TemaplateDocsService {
         }
     }
 
-    async update(updateDocumetnDto: updateTempDocumetnDto, id: string) {
+    async update(updateDocumentDto: UpdateTempDocumentDto, id: string) {
         try {
             return await this.prisma.templateDocuments.update({ 
                 where: { id: id },
-                data: updateDocumetnDto
+                data: updateDocumentDto
             });
         } catch (error) {
             this.logger.error(error);

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ComplitedDocumentsDTO, ComplitedDocumentsUpdateDTO } from './dto/create.dto';
+import { CompletedDocumentsDTO, CompletedDocumentsUpdateDTO } from './dto/create.dto';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class CompletedDocumentsService {
         }
     }
 
-    async create(document: ComplitedDocumentsDTO) {
+    async create(document: CompletedDocumentsDTO) {
         try {
             return await this.prisma.filledTemplateDocuments.create({ data: document });
         } catch (error) {
@@ -34,7 +34,7 @@ export class CompletedDocumentsService {
         }
     }
     
-    async update(document: ComplitedDocumentsUpdateDTO, id: string) {
+    async update(document: CompletedDocumentsUpdateDTO, id: string) {
         try {
             return await this.prisma.filledTemplateDocuments.update({ where: { id }, data: document });
         } catch (error) {

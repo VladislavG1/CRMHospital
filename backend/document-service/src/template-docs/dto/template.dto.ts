@@ -44,7 +44,7 @@ export class CreateTempDocumentDto {
     dosc_type: string;
 }
 
-export class updateTempDocumetnDto {
+export class UpdateTempDocumentDto {
     @ApiProperty({ description: 'Название шаблона', required: false })
     @IsString()
     @IsOptional()

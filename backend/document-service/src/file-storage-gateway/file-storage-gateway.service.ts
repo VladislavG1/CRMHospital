@@ -9,7 +9,7 @@ import { promises as fs} from 'fs'
 
 
 @Injectable()
-export class FileStoregeGatewayService {
+export class FileStorageGatewayService {
     constructor(
         private readonly logger: Logger,
         private readonly prisma: PrismaService  

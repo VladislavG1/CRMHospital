@@ -2,14 +2,14 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateDocumentDto } from './dto/create.dto';
 import { UpdateDocumentDto } from './dto/update.dto';
-import { FileStoregeGatewayService } from 'src/file-storege-gateway/file-storege-gateway.service';
+import { FileStorageGatewayService } from 'src/file-storage-gateway/file-storage-gateway.service';
 
 @Injectable()
 export class DocumentsService {
     
     constructor(
         private prisma: PrismaService,
-        private readonly file_storage: FileStoregeGatewayService,
+        private readonly file_storage: FileStorageGatewayService,
         private readonly logger: Logger
     ) { }
 

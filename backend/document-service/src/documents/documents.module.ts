@@ -4,10 +4,10 @@ import { DocumentsController } from './documents.controller';
 import { PrismaService } from '../prisma.service';
 import { DocumentStatService } from './document-stat.service';
 import { DocumentStatController } from './document-stat.controller';
-import { FileStoregeGatewayService } from 'src/file-storege-gateway/file-storege-gateway.service';
+import { FileStorageGatewayService } from 'src/file-storage-gateway/file-storage-gateway.service';
 
 @Module({
     controllers: [DocumentsController, DocumentStatController],
-    providers: [DocumentsService, PrismaService, Logger, DocumentStatService, FileStoregeGatewayService],
+    providers: [DocumentsService, PrismaService, Logger, DocumentStatService, FileStorageGatewayService],
 })
 export class DocumentsModule { }   

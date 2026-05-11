@@ -1,7 +1,7 @@
 import { IsString, IsUUID, IsOptional } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class ComplitedDocumentsDTO {
+export class CompletedDocumentsDTO {
     @ApiProperty({
         description: 'Название документа',
         example: 'Договор купли-продажи №15'
@@ -50,7 +50,7 @@ export class ComplitedDocumentsDTO {
     statusId: string;
 }
 
-export class ComplitedDocumentsUpdateDTO {
+export class CompletedDocumentsUpdateDTO {
     @ApiProperty({ description: 'Новое название документа', required: false, example: 'Договор (ред. от 13.04)' })
     @IsString()
     @IsOptional()

@@ -1,38 +1,38 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, Logger, HttpCode, BadGatewayException, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
-import { CreateTempDocumentDto, updateTempDocumetnDto } from './dto/templdto';
-import { TemaplateDocsService } from './temaplate-docs.service';
+import { CreateTempDocumentDto, UpdateTempDocumentDto } from './dto/template.dto';
+import { TemplateDocsService } from './template-docs.service';
 
 @ApiTags('Document: Template Documents')
-@Controller('temaplate-docs')
-export class TemaplateDocsController {
+@Controller('template-docs')
+export class TemplateDocsController {
     constructor(
-        private readonly temaplateDocsService: TemaplateDocsService,
+        private readonly templateDocsService: TemplateDocsService,
         private readonly logger: Logger
 
     ) { }
 
-    @Get("findAll")
+    @Get("findall")
     @HttpCode(201)
     @ApiOperation({ summary: 'Получить все шаблоны документов' })
     @ApiResponse({ status: 201, description: 'Список успешно получен' })
-    async findeAll() {
+    async findAll() {
         try {
-            return await this.temaplateDocsService.findAll();
+            return await this.templateDocsService.findAll();
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось получить данные");
         }
     }
 
-    @Get("fineOne")
+    @Get("findone")
     @HttpCode(201)
     @ApiOperation({ summary: 'Получить шаблон по ID' })
     @ApiQuery({ name: 'id', description: 'UUID шаблона' })
     @ApiResponse({ status: 201, description: 'Шаблон найден' })
     async findOne(@Query('id') id: string) {
         try {
-            return await this.temaplateDocsService.findOne(id);
+            return await this.templateDocsService.findOne(id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось получить данные");
@@ -46,8 +46,7 @@ export class TemaplateDocsController {
     @ApiResponse({ status: 201, description: 'Шаблон успешно создан' })
     async create(@Body() createDocumentDto: CreateTempDocumentDto) {
         try {
-            // надо подумать как лучше сделать?
-            return await this.temaplateDocsService.create(createDocumentDto);
+            return await this.templateDocsService.create(createDocumentDto);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось создать шаблон");
@@ -60,9 +59,9 @@ export class TemaplateDocsController {
     @ApiOperation({ summary: 'Обновить существующий шаблон' })
     @ApiParam({ name: 'id', description: 'UUID шаблона для обновления' })
     @ApiResponse({ status: 201, description: 'Шаблон успешно обновлен' })
-    async update(@Body() updateDocumetnDto: updateTempDocumetnDto, @Param('id') id: string) {
+    async update(@Body() updateDocumentDto: UpdateTempDocumentDto, @Param('id') id: string) {
         try {
-            return await this.temaplateDocsService.update(updateDocumetnDto, id);
+            return await this.templateDocsService.update(updateDocumentDto, id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось обновить шаблон");
@@ -77,7 +76,7 @@ export class TemaplateDocsController {
     @ApiResponse({ status: 201, description: 'Шаблон успешно удален' })
     async delete(@Query('id') id: string) {
         try {
-            return await this.temaplateDocsService.delete(id);
+            return await this.templateDocsService.delete(id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось удалить шаблон");

@@ -1,16 +1,16 @@
 import { Controller, Get, Post, Body, Param, Query, Res, UploadedFile, UseInterceptors, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery, ApiResponse, ApiProduces } from '@nestjs/swagger';
-import { FileStoregeGatewayService } from './file-storege-gateway.service';
+import { FileStorageGatewayService } from './file-storage-gateway.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 
 import type { Response } from 'express';
 
 @ApiTags('Document: File storage gateway')
-@Controller('file-storege-gateway')
-export class FileStoregeGatewayController {
+@Controller('file-storage-gateway')
+export class FileStorageGatewayController {
     constructor(
-        private readonly service: FileStoregeGatewayService,
+        private readonly service: FileStorageGatewayService,
         private readonly logger: Logger
     ) { }
 

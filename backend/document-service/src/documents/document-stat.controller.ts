@@ -1,7 +1,7 @@
 import { BadGatewayException, Body, Controller, Delete, Get, HttpCode, Logger, Param, Post, Put } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from "@nestjs/swagger";
 import { DocumentStatService } from "./document-stat.service";
-import { createStatusDto, createTypeDto, updateStatusDto, updateTypeDto } from "./dto/create.dto";
+import { CreateStatusDto, CreateTypeDto, UpdateStatusDto, UpdateTypeDto } from "./dto/create.dto";
 
 @ApiTags('Document: Document Dictionaries (Statuses & Types)')
 @Controller('document-stat')
@@ -11,12 +11,12 @@ export class DocumentStatController {
         private readonly logger: Logger
     ) { }
 
-    @Get("findAllstatus")
+    @Get("findallstatuses")
     @HttpCode(200)
     @ApiOperation({ summary: 'Получить все доступные статусы документов' })
-    async getallstatus() {
+    async getAllStatuses() {
         try {
-            return await this.service.findAllstatus();
+            return await this.service.findAllStatuses();
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось получить данные");
@@ -27,9 +27,9 @@ export class DocumentStatController {
     @HttpCode(200)
     @ApiOperation({ summary: 'Найти конкретный статус по ID' })
     @ApiParam({ name: 'id', description: 'UUID статуса' })
-    async findstatus(@Param('id') id: string) {
+    async findStatus(@Param('id') id: string) {
         try {
-            return await this.service.findonestatus(id);
+            return await this.service.findOneStatus(id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось получить данные");
@@ -39,9 +39,9 @@ export class DocumentStatController {
     @Post("createstatus")
     @HttpCode(201)
     @ApiOperation({ summary: 'Создать новый статус' })
-    async createnewstatus(@Body() dock_status: createStatusDto) {
+    async createNewStatus(@Body() doc_status: CreateStatusDto) {
         try {
-            return await this.service.createnewstatus(dock_status);
+            return await this.service.createNewStatus(doc_status);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось создать статус");
@@ -52,9 +52,9 @@ export class DocumentStatController {
     @HttpCode(200)
     @ApiOperation({ summary: 'Удалить статус' })
     @ApiParam({ name: 'id', description: 'UUID статуса для удаления' })
-    async deletestatus(@Param('id') id: string) {
+    async deleteStatus(@Param('id') id: string) {
         try {
-            return await this.service.deletestatus(id);
+            return await this.service.deleteStatus(id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось удалить статус");
@@ -64,21 +64,21 @@ export class DocumentStatController {
     @Put("updatestatus/:id")
     @HttpCode(200)
     @ApiOperation({ summary: 'Обновить данные статуса' })
-    async updatestatus(@Param('id') id: string, @Body() data_status: updateStatusDto) {
+    async updateStatus(@Param('id') id: string, @Body() data_status: UpdateStatusDto) {
         try {
-            return await this.service.updatestatus(data_status, id);
+            return await this.service.updateStatus(data_status, id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось обновить статус");
         }
     }
 
-    @Get("findAlltype")
+    @Get("findalltypes")
     @HttpCode(200)
     @ApiOperation({ summary: 'Получить все типы документов' })
-    async getalltypes() {
+    async getAllTypes() {
         try {
-            return await this.service.findAlltypes();
+            return await this.service.findAllTypes();
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось получить данные");
@@ -88,9 +88,9 @@ export class DocumentStatController {
     @Get('findonetype/:id')
     @HttpCode(200)
     @ApiOperation({ summary: 'Найти тип документа по ID' })
-    async findtype(@Param('id') id: string) {
+    async findType(@Param('id') id: string) {
         try {
-            return await this.service.findonetype(id);
+            return await this.service.findOneType(id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось получить данные");
@@ -100,9 +100,9 @@ export class DocumentStatController {
     @Post("createtype")
     @HttpCode(201)
     @ApiOperation({ summary: 'Создать новый тип документа' })
-    async createnewtype(@Body() dokc_tyepe: createTypeDto) {
+    async createNewType(@Body() doc_type: CreateTypeDto) {
         try {
-            return await this.service.createnewtype(dokc_tyepe);
+            return await this.service.createNewType(doc_type);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось создать тип");
@@ -112,9 +112,9 @@ export class DocumentStatController {
     @Delete("deletetype/:id")
     @HttpCode(200)
     @ApiOperation({ summary: 'Удалить тип документа' })
-    async deletetype(@Param('id') id: string) {
+    async deleteType(@Param('id') id: string) {
         try {
-            return await this.service.deletetype(id);
+            return await this.service.deleteType(id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось удалить тип");
@@ -124,9 +124,9 @@ export class DocumentStatController {
     @Put("updatetype/:id")
     @HttpCode(200)
     @ApiOperation({ summary: 'Обновить описание типа документа' })
-    async updatetype(@Param('id') id: string, @Body() data_type: updateTypeDto) {
+    async updateType(@Param('id') id: string, @Body() data_type: UpdateTypeDto) {
         try {
-            return await this.service.updatetype(data_type, id);
+            return await this.service.updateType(data_type, id);
         } catch (error) {
             this.logger.error(error);
             throw new BadGatewayException("Не удалось обновить тип");

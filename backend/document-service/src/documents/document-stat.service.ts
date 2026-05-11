@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
-import { createStatusDto, createTypeDto, updateStatusDto, updateTypeDto } from "./dto/create.dto";
+import { CreateStatusDto, CreateTypeDto, UpdateStatusDto, UpdateTypeDto } from "./dto/create.dto";
 
 
 @Injectable()
@@ -11,49 +11,49 @@ export class DocumentStatService {
         private readonly prisma: PrismaService,
         private readonly logger: Logger
     ) {}
-    async findAllstatus() {
+    async findAllStatuses() {
         try {
             return await this.prisma.documentStatus.findMany();
         } catch (error) {
             this.logger.error(error);
         }
     }
-    async findAlltypes() {
+    async findAllTypes() {
         try {
             return await this.prisma.documentsTypes.findMany();
         } catch (error) {
             this.logger.error(error);
         }
     }
-    async findonestatus(id: string) {
+    async findOneStatus(id: string) {
         try {
             return await this.prisma.documentStatus.findUnique({ where: { id } });
         } catch (error) {
             this.logger.error(error);
         }
     }
-    async findonetype(id: string) {
+    async findOneType(id: string) {
         try {
             return await this.prisma.documentsTypes.findUnique({ where: { id } });
         } catch (error) {
             this.logger.error(error);
         }
     }
-    async createnewstatus(dock_status: createStatusDto) {
+    async createNewStatus(doc_status: CreateStatusDto) {
         try {
-            return await this.prisma.documentStatus.create({ data: dock_status});
+            return await this.prisma.documentStatus.create({ data: doc_status});
         } catch (error) {
             this.logger.error(error);
         }
     }
-    async createnewtype(dokc_tyepe: createTypeDto) {
+    async createNewType(doc_type: CreateTypeDto) {
         try {
-            return await this.prisma.documentsTypes.create({ data: dokc_tyepe});
+            return await this.prisma.documentsTypes.create({ data: doc_type});
         } catch (error) {
             this.logger.error(error);
         }
     }
-    async deletestatus(id: string) {
+    async deleteStatus(id: string) {
         try {
             return await this.prisma.documentStatus.delete({ where: { id } });
         } catch (error) {
@@ -61,14 +61,14 @@ export class DocumentStatService {
         }
         
     }
-    async deletetype(id: string) {
+    async deleteType(id: string) {
         try {
             return await this.prisma.documentsTypes.delete({ where: { id } });
         } catch (error) {
             this.logger.error(error);
         }
     }
-    async updatestatus(data_status: updateStatusDto, id: string) {
+    async updateStatus(data_status: UpdateStatusDto, id: string) {
         try {
             return await this.prisma.documentStatus.update({ 
                 where: { id: id },
@@ -78,7 +78,7 @@ export class DocumentStatService {
             this.logger.error(error);
         }
     }
-    async updatetype(data_type : updateTypeDto, id: string) {
+    async updateType(data_type: UpdateTypeDto, id: string) {
         try {
             return await this.prisma.documentsTypes.update({ 
                 where: { id: id },

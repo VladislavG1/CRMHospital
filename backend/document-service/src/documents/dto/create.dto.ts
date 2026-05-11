@@ -35,7 +35,7 @@ export class CreateDocumentDto {
     statusId: string;
 }
 
-export class createStatusDto {
+export class CreateStatusDto {
     @ApiProperty({ description: 'Название статуса', example: 'На согласовании' })
     @IsString()
     @IsNotEmpty()
@@ -46,7 +46,7 @@ export class createStatusDto {
     description: string;
 }
 
-export class createTypeDto {
+export class CreateTypeDto {
     @ApiProperty({ description: 'Название типа документа', example: 'Договор' })
     @IsString()
     @IsNotEmpty()
@@ -57,7 +57,7 @@ export class createTypeDto {
     description: string;
 }
 
-export class updateStatusDto {
+export class UpdateStatusDto {
     @ApiProperty({ description: 'Новое название статуса', required: false })
     @IsString()
     @IsOptional()
@@ -69,7 +69,7 @@ export class updateStatusDto {
     description?: string;
 }
 
-export class updateTypeDto {
+export class UpdateTypeDto {
     @ApiProperty({ description: 'Новое название типа', required: false })
     @IsString()
     @IsOptional()

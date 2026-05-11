@@ -1,7 +1,7 @@
 import { BadGatewayException, Body, Controller, Get, Logger, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { CompletedDocumentsService } from './completed-documents.service';
-import { ComplitedDocumentsDTO, ComplitedDocumentsUpdateDTO } from './dto/create.dto';
+import { CompletedDocumentsDTO, CompletedDocumentsUpdateDTO } from './dto/create.dto';
 
 @ApiTags('Document: Completed Documents')
 @Controller('completed-documents')
@@ -38,7 +38,7 @@ export class CompletedDocumentsController {
     @Post("create")
     @ApiOperation({ summary: 'Создать новый документ' })
     @ApiResponse({ status: 201, description: 'Документ успешно создан' })
-    async create(@Body() document: ComplitedDocumentsDTO) {
+    async create(@Body() document: CompletedDocumentsDTO) {
         try {
             return await this.service.create(document);
         } catch (error) {
@@ -50,7 +50,7 @@ export class CompletedDocumentsController {
     @Put("update")
     @ApiOperation({ summary: 'Обновить данные документа' })
     @ApiQuery({ name: 'id', description: 'UUID документа для обновления' })
-    async update(@Body() document: ComplitedDocumentsUpdateDTO, @Query('id') id: string) {
+    async update(@Body() document: CompletedDocumentsUpdateDTO, @Query('id') id: string) {
         try {
             return await this.service.update(document, id);
         } catch (error) {
