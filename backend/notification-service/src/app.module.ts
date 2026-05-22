@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
-import { TaskModule } from './task/task.module';
-import { MassAssignmentModule } from './mass-assignment/mass-assignment.module';
 import { RedisModule } from './redis/redis.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
-import { ApprovalModule } from './approval/approval.module';
+import { NotificationCoreModule } from './core/notification-core.module';
+import { TemplateEngineModule } from './template-engine/template-engine.module';
+import { TransportModule } from './transport/transport.module';
 
 @Module({
   imports: [
@@ -14,9 +14,9 @@ import { ApprovalModule } from './approval/approval.module';
       isGlobal: true,
       load: [configuration],
     }),
-    TaskModule,
-    MassAssignmentModule,
-    ApprovalModule,
+    NotificationCoreModule,
+    TemplateEngineModule,
+    TransportModule,
     RedisModule,
     CacheModule.register({
       store: redisStore,

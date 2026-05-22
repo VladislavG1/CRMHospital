@@ -2,15 +2,17 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskHistoryService } from 'src/task-history/task-history.service';
 
 @Injectable()
 export class TaskService {
     constructor(
-        private prisma: PrismaService
+        private prisma: PrismaService,
+        private historyService: TaskHistoryService
     ) { }
 
-    async create(dto: CreateTaskDto) {
-        return await this.prisma.tasks.create({
+    async create(dto: CreateTaskDto, userId: string) {
+        const task = await this.prisma.tasks.create({
             data: {
                 name: dto.name,
                 description: dto.description,
@@ -20,6 +22,15 @@ export class TaskService {
             },
             include: { task_status: true, task_type: true }
         });
+
+        await this.historyService.log({
+            task_id: task.id,
+            user_id: userId,
+            action: 'TASK_CREATED',
+            new_value: `Задача успешно создана с типом ${task.task_type.name}`
+        });
+
+        return task;
     }
     
     async findAll(parent_id?: string, status_id?: string) {
@@ -52,7 +63,7 @@ export class TaskService {
         return task;
     }
 
-    async updateStatus(id: string, newStatusId: string) {
+    async updateStatus(id: string, newStatusId: string, userId: string) {
         const task = await this.findOne(id);
         const targetStatus = await this.prisma.taskStatus.findUnique({
             where: { id: newStatusId }
@@ -62,11 +73,21 @@ export class TaskService {
 
         this.validateStatusTransition(task.task_status.name, targetStatus.name);
 
-        return await this.prisma.tasks.update({
+        const updatedTask = await this.prisma.tasks.update({
             where: { id },
             data: { task_status_id: newStatusId },
             include: { task_status: true }
         });
+
+        await this.historyService.log({
+            task_id: id,
+            user_id: userId,
+            action: 'STATUS_CHANGED',
+            old_value: task.task_status.name,
+            new_value: targetStatus.name
+        });
+
+        return updatedTask;
     }
 
     private validateStatusTransition(current: string, next: string) {
@@ -89,8 +110,10 @@ export class TaskService {
         return await this.prisma.tasks.delete({ where: { id } });
     }
 
-    async update(id: string, dto: UpdateTaskDto) {
-        return this.prisma.tasks.update({
+    async update(id: string, dto: UpdateTaskDto, userId: string) {
+        const currentTask = await this.findOne(id);
+
+        const updatedTask = await this.prisma.tasks.update({
             where: { id },
             data: {
                 name: dto.name,
@@ -98,6 +121,16 @@ export class TaskService {
                 task_status_id: dto.task_status_id
             }
         });
+
+        await this.historyService.log({
+            task_id: id,
+            user_id: userId,
+            action: 'TASK_UPDATED',
+            old_value: `Имя: ${currentTask.name}, Описание: ${currentTask.description}`,
+            new_value: `Имя: ${dto.name}, Описание: ${dto.description}`
+        });
+
+        return updatedTask;
     }
 
     async getTaskTypes() {

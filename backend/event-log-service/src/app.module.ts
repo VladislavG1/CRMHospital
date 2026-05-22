@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
-import { EventsController, UserDocumentsController } from './events/events.controller';
-import { EventsService } from './events/events.service';
+import { AuditModule } from './audit/audit.module';
+import { ErrorTrackerModule } from './error-tracker/error-tracker.module';
 
 @Module({
-  controllers: [EventsController, UserDocumentsController],
-  providers: [PrismaService, EventsService],
+  imports: [AuditModule, ErrorTrackerModule],
+  controllers: [],
+  providers: [],
 })
-export class AppModule {}
+export class AppModule { }

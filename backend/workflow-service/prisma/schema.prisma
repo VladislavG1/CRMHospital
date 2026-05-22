@@ -27,6 +27,10 @@ model Tasks {
   Task_users   TaskUsers[]
   
   Archive_docs ArchiveDocs[]
+
+  Task_comments TaskComments[]
+
+  Task_history TaskHistory[]
 }
 
 model TaskType {
@@ -57,4 +61,32 @@ model ArchiveDocs {
   date_create DateTime @default(now())
   task_id     String   @db.Uuid
   task       Tasks    @relation(fields: [task_id], references: [id])
+}
+
+model TaskComments {
+  id          String   @id @default(uuid()) @db.Uuid
+  text        String   @db.Text
+  date_create DateTime @default(now())
+  
+  task_id     String   @db.Uuid
+  task        Tasks    @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  
+  user_id     String   @db.Uuid
+
+  @@index([task_id])
+}
+
+model TaskHistory {
+  id          String   @id @default(uuid()) @db.Uuid
+  action      String   @db.VarChar(64)
+  old_value   String?  @db.Text
+  new_value   String?  @db.Text
+  date_create DateTime @default(now())
+
+  task_id     String   @db.Uuid
+  task        Tasks    @relation(fields: [task_id], references: [id], onDelete: Cascade)
+
+  user_id     String   @db.Uuid
+
+  @@index([task_id])
 }

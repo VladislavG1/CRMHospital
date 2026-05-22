@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  schema   = "event-log"
+  schema   = "event_log"
 }
 
 datasource db {
@@ -8,38 +8,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model EventsLog {
-  id           String   @id @default(uuid())
-  event_type   String
-  event_name   String
-  service_name String
-  entity_type  String
-  entity_id    String
-  user_id      String
-  ip_address   String?
-  created_at   DateTime @default(now())
-
-  @@index([event_type])
-  @@index([entity_type])
-  @@index([entity_id])
-  @@index([user_id])
-  @@index([created_at])
-  @@index([service_name])
-
+enum ErrorSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
-model UserDocumentPreference {
-  id          String   @id @default(uuid())
-  userId      String
-  documentId  String
-  hidden      Boolean  @default(false)
-  pinned      Boolean  @default(false)
-  pinnedOrder Int?
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+model LogsActions {
+  id           String   @id @default(uuid()) @db.Uuid
+  user_id      String   @db.Uuid
+  microservice String   @db.VarChar(64)
+  action       String   @db.VarChar(128)
+  payload      Json?
+  ip_address   String?  @db.VarChar(45)
+  date_create  DateTime @default(now())
 
-  @@unique([userId, documentId])
-  @@index([userId])
-  @@map("user_document_preferences")
+  @@index([user_id])
+  @@index([microservice])
+  @@index([date_create])
+  @@map("logs_actions")
+}
 
+model ErrorLogs {
+  id           String        @id @default(uuid()) @db.Uuid
+  microservice String        @db.VarChar(64)
+  message      String        @db.Text
+  stack_trace  String?       @db.Text
+  severity     ErrorSeverity @default(MEDIUM)
+  context      Json?
+  date_create  DateTime      @default(now())
+
+  @@index([microservice])
+  @@index([severity])
+  @@index([date_create])
+  @@map("error_logs")
 }

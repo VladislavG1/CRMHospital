@@ -9,7 +9,8 @@ import {
     Query,
     ParseUUIDPipe,
     HttpStatus,
-    HttpCode
+    HttpCode,
+    Req
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { TaskService } from './task.service';
@@ -25,8 +26,8 @@ export class TaskController {
     @Post()
     @ApiOperation({ summary: 'Создать новую задачу' })
     @ApiResponse({ status: 201, description: 'Задача успешно создана' })
-    async create(@Body() dto: CreateTaskDto) {
-        return await this.taskService.create(dto);
+    async create(@Body() dto: CreateTaskDto, @Req() req) {
+        return await this.taskService.create(dto, req.user.id);
     }
 
     @Get()
@@ -45,8 +46,8 @@ export class TaskController {
 
     @Patch(':id')
     @ApiOperation({ summary: 'Обновить данные задачи (имя, описание)' })
-    async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTaskDto) {
-        return await this.taskService.update(id, dto);
+    async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTaskDto, @Req() req) {
+        return await this.taskService.update(id, dto, req.user.id);
     }
 
     @Delete(':id')
@@ -60,8 +61,9 @@ export class TaskController {
     @ApiOperation({ summary: 'Сменить статус задачи (с валидацией перехода)' })
     @ApiResponse({ status: 200, description: 'Статус обновлен' })
     @ApiResponse({ status: 400, description: 'Недопустимый переход статуса' })
-    async updateStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTaskStatusDto) {
-        return await this.taskService.updateStatus(id, dto.status_id);
+    async updateStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTaskStatusDto, @Req() req) {
+        const userId = req.user.id;
+        return await this.taskService.updateStatus(id, dto.status_id, userId);
     }
 
     @Get('meta/types')

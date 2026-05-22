@@ -1,0 +1,61 @@
+generator client {
+    provider = "prisma-client-js"
+    schema   = "calendar"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+enum AppointmentStatus {
+    SCHEDULED
+    COMPLETED
+    CANCELED
+}
+
+model WorkShift {
+    id            String   @id @default(uuid()) @db.Uuid
+    department_id String   @db.Uuid
+    start_time    DateTime
+    end_time      DateTime
+    date_create   DateTime @default(now())
+
+    @@index([department_id])
+    @@index([start_time, end_time])
+    @@map("work_shift")
+}
+
+model Appointment {
+    id         String @id @default(uuid()) @db.Uuid
+    doctor_id  String @db.Uuid
+    patient_id String @db.Uuid
+    cabinet    String @db.VarChar(16)
+
+    start_time DateTime
+    end_time   DateTime
+    status     AppointmentStatus @default(SCHEDULED)
+
+    description String?  @db.Text
+    date_create DateTime @default(now())
+
+    @@index([doctor_id])
+    @@index([patient_id])
+    @@index([start_time, end_time])
+    @@map("appointment")
+}
+
+model SyncedEvent {
+    id      String @id @default(uuid()) @db.Uuid
+    task_id String @unique @db.Uuid
+    user_id String @db.Uuid
+
+    title    String   @db.VarChar(128)
+    deadline DateTime
+
+    date_sync DateTime @default(now())
+
+    @@index([user_id])
+    @@index([deadline])
+    @@map("synced_event")
+}
