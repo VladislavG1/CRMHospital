@@ -7,6 +7,7 @@ import { RedisModule } from './redis/redis.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { ApprovalModule } from './approval/approval.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ApprovalModule } from './approval/approval.module';
     }),
     TaskModule,
     MassAssignmentModule,
+    CommentModule,
     ApprovalModule,
     RedisModule,
     CacheModule.register({
